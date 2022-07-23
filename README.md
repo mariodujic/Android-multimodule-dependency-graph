@@ -25,11 +25,11 @@ dependencies {
 }
 ```
 <br>
-Generate graph example:
+Generated graph example:
 <br>
 <br>
 <div align="center">
-<img src="preview.jpg"  width="90%"/>
+<img src="preview.jpg"  width="100%"/>
 </div>
 
 # Instructions
@@ -37,3 +37,7 @@ Generate graph example:
 - Install python dependencies from `requirements.txt` file.
 - Run `python main.py`
 - Enter Android project path.
+<br>
+<br>
+
+Tested on Chris Banes [Tivi](https://github.com/chrisbanes/tivi) project.

@@ -17,7 +17,7 @@ def get_graph(path):
                 if stand(line).__contains__("\':"):
                     ln = get_between(stand(line), '\'', '\'')
                     modules.append(ln)
-                    net.add_node(ln, shape='circle', mass=14)
+                    net.add_node(ln, shape='circle', mass=7)
 
     def set_node_edges(root, files):
         if 'build.gradle' in files:
