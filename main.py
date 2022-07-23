@@ -14,10 +14,10 @@ def get_graph(path):
             file = open(root_file, 'r')
             lines = file.readlines()
             for line in lines:
-                if line.__contains__("include"):
-                    ln = get_between(line.replace('\"', '\''), '\'', '\'')
+                if stand(line).__contains__("\':"):
+                    ln = get_between(stand(line), '\'', '\'')
                     modules.append(ln)
-                    net.add_node(ln, shape='circle', mass=5)
+                    net.add_node(ln, shape='circle', mass=14)
 
     def set_node_edges(root, files):
         if 'build.gradle' in files:
@@ -26,13 +26,13 @@ def get_graph(path):
             file = open(root_file, 'r')
             lines = file.readlines()
             current_module = ""
-            root_formatted = str(root).replace('\\', ':')
+            root_formatted = str(root).replace('\\', ':').replace(".", ":")
             for module in modules:
                 if root_formatted.__contains__(module):
                     current_module = module
             for line in lines:
-                if line.lower().__contains__("implementation"):
-                    ln = get_between(line.replace('\"', '\''), '\'', '\'')
+                if stand(line).__contains__("implementation"):
+                    ln = get_between(stand(line), '\'', '\'')
                     for module in modules:
                         if ln == module:
                             net.add_edge(current_module, module)
@@ -43,13 +43,17 @@ def get_graph(path):
     return net
 
 
-def get_between(s, first, last):
+def get_between(s, first, last) -> str:
     try:
         start = s.index(first) + len(first)
         end = s.index(last, start)
         return s[start:end]
     except ValueError:
         return ""
+
+
+def stand(s) -> str:
+    return str(s).lower().replace('\"', '\'').replace(".", ":")
 
 
 if __name__ == '__main__':
