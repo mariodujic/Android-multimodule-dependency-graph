@@ -3,13 +3,16 @@ import os
 from pyvis.network import Network
 
 
-def get_graph(path):
+def get_graph(path, gradle_kotlin_dsl):
     net = Network(height="1500px", width="1500px", directed=True)
     modules = []
+    extension = '.kts' if gradle_kotlin_dsl else ''
+    gradle_settings_file_name = 'settings.gradle' + extension
+    gradle_build_file_name = 'build.gradle' + extension
 
     def insert_module_nodes(root, files):
-        if 'settings.gradle' in files:
-            root_file = root + "\\settings.gradle"
+        if gradle_settings_file_name in files:
+            root_file = root + "\\" + gradle_settings_file_name
             assert os.path.isfile(root_file)
             file = open(root_file, 'r')
             lines = file.readlines()
@@ -20,8 +23,8 @@ def get_graph(path):
                     net.add_node(ln, shape='circle', mass=7)
 
     def set_node_edges(root, files):
-        if 'build.gradle' in files:
-            root_file = root + "\\build.gradle"
+        if gradle_build_file_name in files:
+            root_file = root + "\\" + gradle_build_file_name
             assert os.path.isfile(root_file)
             file = open(root_file, 'r')
             lines = file.readlines()
@@ -60,5 +63,12 @@ if __name__ == '__main__':
     print('Enter your project path:')
     directoryPath = input()
     print('Generating graph..')
-    graph = get_graph(directoryPath)
+    kotlin_dsl: bool
+    if os.path.exists(directoryPath + '\\settings.gradle.kts'):
+        kotlin_dsl = True
+    elif os.path.exists(directoryPath + '\\settings.gradle'):
+        kotlin_dsl = False
+    else:
+        raise Exception("Unable to find Gradle settings file")
+    graph = get_graph(directoryPath, kotlin_dsl)
     graph.show('dependency_graph.html')
