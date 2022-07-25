@@ -12,7 +12,7 @@ def get_graph(path, gradle_kotlin_dsl):
 
     def insert_module_nodes(root, files):
         if gradle_settings_file_name in files:
-            root_file = root + "\\" + gradle_settings_file_name
+            root_file = root + os.sep + gradle_settings_file_name
             assert os.path.isfile(root_file)
             file = open(root_file, 'r')
             lines = file.readlines()
@@ -24,12 +24,12 @@ def get_graph(path, gradle_kotlin_dsl):
 
     def set_node_edges(root, files):
         if gradle_build_file_name in files:
-            root_file = root + "\\" + gradle_build_file_name
+            root_file = root + os.sep + gradle_build_file_name
             assert os.path.isfile(root_file)
             file = open(root_file, 'r')
             lines = file.readlines()
             current_module = ""
-            root_formatted = str(root).replace('\\', ':').replace(".", ":")
+            root_formatted = str(root).replace(os.sep, ':').replace(".", ":")
             for module in modules:
                 if root_formatted.__contains__(module):
                     current_module = module
@@ -61,12 +61,12 @@ def stand(s) -> str:
 
 if __name__ == '__main__':
     print('Enter your project path:')
-    directoryPath = input()
+    directoryPath = input().strip()
     print('Generating graph..')
     kotlin_dsl: bool
-    if os.path.exists(directoryPath + '\\settings.gradle.kts'):
+    if os.path.exists(directoryPath + os.sep + 'settings.gradle.kts'):
         kotlin_dsl = True
-    elif os.path.exists(directoryPath + '\\settings.gradle'):
+    elif os.path.exists(directoryPath + os.sep + 'settings.gradle'):
         kotlin_dsl = False
     else:
         raise Exception("Unable to find Gradle settings file")
