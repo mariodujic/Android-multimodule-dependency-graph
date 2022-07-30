@@ -24,6 +24,7 @@ dependencies {
     implementation project(':core:navigation')
 }
 ```
+
 <br>
 Generated graph example:
 <br>
@@ -40,4 +41,5 @@ Generated graph example:
 <br>
 <br>
 
-Tested on Chris Banes [Tivi](https://github.com/chrisbanes/tivi) project.
+Tested on Chris Banes [Tivi](https://github.com/chrisbanes/tivi)
+and Google's [Now in Android](https://github.com/android/nowinandroid) projects.
