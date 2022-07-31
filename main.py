@@ -2,15 +2,20 @@ import os
 
 from pyvis.network import Network
 
+from utils import filter_dict, stand, get_between
+
+circular_dependency_color = "#F88379"
+
 
 def get_graph(path, gradle_kotlin_dsl):
     net = Network(height="1500px", width="1500px", directed=True)
-    modules = []
+    net.inherit_edge_colors(False)
+    modules = dict()
     extension = '.kts' if gradle_kotlin_dsl else ''
     gradle_settings_file_name = 'settings.gradle' + extension
     gradle_build_file_name = 'build.gradle' + extension
 
-    def insert_module_nodes(root, files):
+    def retrieve_project_modules(root, files):
         if gradle_settings_file_name in files:
             root_file = root + os.sep + gradle_settings_file_name
             assert os.path.isfile(root_file)
@@ -19,10 +24,10 @@ def get_graph(path, gradle_kotlin_dsl):
             for line in lines:
                 if stand(line).__contains__("\':"):
                     ln = get_between(stand(line), '\'', '\'')
-                    modules.append(ln)
+                    modules[ln] = []
                     net.add_node(ln, shape='circle', mass=7)
 
-    def set_node_edges(root, files):
+    def add_module_dependencies(root, files):
         if gradle_build_file_name in files:
             root_file = root + os.sep + gradle_build_file_name
             assert os.path.isfile(root_file)
@@ -30,7 +35,7 @@ def get_graph(path, gradle_kotlin_dsl):
             lines = file.readlines()
             current_module = ""
             root_formatted = str(root).replace(os.sep, ':').replace(".", ":")
-            for module in modules:
+            for module in modules.keys():
                 if root_formatted.__contains__(module):
                     current_module = module
             for line in lines:
@@ -38,25 +43,48 @@ def get_graph(path, gradle_kotlin_dsl):
                     ln = get_between(stand(line), '\'', '\'')
                     for module in modules:
                         if ln == module:
-                            net.add_edge(current_module, module)
+                            modules[current_module].append(module)
+
+    def get_circular_dependency_modules() -> []:
+        circular_dependency_modules = []
+        filtered_modules = filter_dict(modules, lambda elem: len(elem[1]) > 0).items()
+        for module, module_dependencies in filtered_modules:
+
+            def search_circular_dependencies(scope_dependencies: []):
+                if scope_dependencies.__contains__(module):
+                    circular_dependency_modules.append(module)
+                    return
+                for sub_module in scope_dependencies:
+                    if len(modules[sub_module]) > 0:
+                        search_circular_dependencies(modules[sub_module])
+
+            try:
+                search_circular_dependencies(module_dependencies)
+            except RecursionError:
+                pass
+        return circular_dependency_modules
+
+    def add_module_edges():
+        circular_dependencies = get_circular_dependency_modules()
+        for module, dependencies in modules.items():
+            is_circular_dependency_module = circular_dependencies.__contains__(module)
+            if is_circular_dependency_module:
+                net.get_node(module)["color"] = circular_dependency_color
+            for dependency in dependencies:
+                is_circular_dependency = is_circular_dependency_module and \
+                                         circular_dependencies.__contains__(dependency)
+                if is_circular_dependency:
+                    net.add_edge(module, dependency, color=circular_dependency_color)
+                else:
+                    net.add_edge(module, dependency)
 
     for current_root, _, current_files in os.walk(path):
-        insert_module_nodes(current_root, current_files)
-        set_node_edges(current_root, current_files)
+        retrieve_project_modules(current_root, current_files)
+        add_module_dependencies(current_root, current_files)
+    # Draws directions, i.e. dependencies, checks for a circular dependencies between modules and marks modules
+    # that are cause of a circular dependency.
+    add_module_edges()
     return net
-
-
-def get_between(s, first, last) -> str:
-    try:
-        start = s.index(first) + len(first)
-        end = s.index(last, start)
-        return s[start:end]
-    except ValueError:
-        return ""
-
-
-def stand(s) -> str:
-    return str(s).lower().replace('\"', '\'').replace(".", ":")
 
 
 if __name__ == '__main__':
