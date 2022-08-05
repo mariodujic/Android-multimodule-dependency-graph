@@ -108,4 +108,4 @@ if __name__ == '__main__':
     else:
         raise FileNotFoundError("Unable to find Gradle settings file")
     graph = get_graph(project_path, kotlin_dsl)
-    graph.show('dependency_graph.html')
+    graph.show('index.html')
