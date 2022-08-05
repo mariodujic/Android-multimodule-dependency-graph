@@ -1,4 +1,5 @@
 import os
+import sys
 
 from pyvis.network import Network
 
@@ -88,15 +89,23 @@ def get_graph(path, gradle_kotlin_dsl):
 
 
 if __name__ == '__main__':
-    print('Enter your project path:')
-    directoryPath = input().strip()
+    has_project_path_argument = len(sys.argv) > 1
+    project_path = ""
+    if has_project_path_argument:
+        project_path = sys.argv[1]
+        project_path_exists = os.path.exists(project_path)
+        if not project_path_exists:
+            raise Exception("Invalid project path")
+    else:
+        print('Enter your project path:')
+        project_path = input().strip()
     print('Generating graph..')
     kotlin_dsl: bool
-    if os.path.exists(directoryPath + os.sep + 'settings.gradle.kts'):
+    if os.path.exists(project_path + os.sep + 'settings.gradle.kts'):
         kotlin_dsl = True
-    elif os.path.exists(directoryPath + os.sep + 'settings.gradle'):
+    elif os.path.exists(project_path + os.sep + 'settings.gradle'):
         kotlin_dsl = False
     else:
-        raise Exception("Unable to find Gradle settings file")
-    graph = get_graph(directoryPath, kotlin_dsl)
+        raise FileNotFoundError("Unable to find Gradle settings file")
+    graph = get_graph(project_path, kotlin_dsl)
     graph.show('dependency_graph.html')

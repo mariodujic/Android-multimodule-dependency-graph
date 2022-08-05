@@ -47,8 +47,10 @@ Circular dependency graph:
 - Install python dependencies from `requirements.txt` file.
 - Run `python main.py`
 - Enter Android project path.
-  <br>
-  <br>
 
+You can also pass in the project path as an argument: `python main.py {project_path}`
+<br>
+<br>
+<br>
 Tested on Chris Banes [Tivi](https://github.com/chrisbanes/tivi)
 and Google's [Now in Android](https://github.com/android/nowinandroid) projects.
