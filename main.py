@@ -3,7 +3,7 @@ import sys
 
 from pyvis.network import Network
 
-from utils import filter_dict, stand, get_between
+from utils import *
 
 circular_dependency_color = "#F88379"
 
@@ -39,8 +39,13 @@ def get_graph(path, gradle_kotlin_dsl):
             for module in modules.keys():
                 if root_formatted.__contains__(module):
                     current_module = module
+            multi_line_comment = False
             for line in lines:
-                if stand(line).__contains__("implementation"):
+                if start_multi_line_comment(line):
+                    multi_line_comment = True
+                if ends_multi_line_comment(line):
+                    multi_line_comment = False
+                if stand(line).__contains__("implementation") and not commented_line(line) and not multi_line_comment:
                     ln = get_between(stand(line), '\'', '\'')
                     for module in modules:
                         if ln == module:
