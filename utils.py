@@ -17,3 +17,18 @@ def get_between(s, first, last) -> str:
 
 def stand(s) -> str:
     return str(s).lower().replace('\"', '\'').replace(".", ":")
+
+
+def commented_line(line: str) -> bool:
+    trimmed_line = line.strip()
+    line = trimmed_line.startswith("//")
+    asterix_line = trimmed_line.startswith("/*") and trimmed_line.endswith("*/")
+    return line or asterix_line
+
+
+def start_multi_line_comment(line: str) -> bool:
+    return line.strip().startswith("/*")
+
+
+def ends_multi_line_comment(line: str) -> bool:
+    return line.strip().__contains__("*/")
