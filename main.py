@@ -23,7 +23,13 @@ def get_graph(path, gradle_kotlin_dsl):
             file = open(root_file, 'r')
             lines = file.readlines()
             for line in lines:
-                if stand(line).__contains__("\':"):
+                if stand(line).__contains__(","):
+                    splits = line.split(",")
+                    for split in splits:
+                        ln = get_between(stand(split), '\'', '\'')
+                        modules[ln] = []
+                        net.add_node(ln, shape='circle', mass=7)
+                elif stand(line).__contains__("\':"):
                     ln = get_between(stand(line), '\'', '\'')
                     modules[ln] = []
                     net.add_node(ln, shape='circle', mass=7)
